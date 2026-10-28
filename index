@@ -1,0 +1,712 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>LinkVault — твоя библиотека ссылок</title>
+  <style>
+    :root {
+      --bg: #f5f6fa;
+      --panel: #ffffff;
+      --text: #202338;
+      --muted: #85899e;
+      --accent: #6c63ff;
+      --border: #e9eaf2;
+      --soft: #efeeff;
+    }
+
+    body.dark {
+      --bg: #141520;
+      --panel: #202130;
+      --text: #f3f3fb;
+      --muted: #a0a3b8;
+      --border: #343548;
+      --soft: #302d50;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      transition: background .2s, color .2s;
+    }
+
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+
+    .app {
+      display: grid;
+      grid-template-columns: 250px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    aside {
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+      padding: 28px 18px;
+    }
+
+    .logo {
+      font-size: 23px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin: 0 0 36px 8px;
+    }
+
+    .logo span { color: var(--accent); }
+
+    .section-label {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.3px;
+      margin: 24px 8px 12px;
+    }
+
+    .folder {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      margin-bottom: 5px;
+      border: 0;
+      border-radius: 11px;
+      background: transparent;
+      color: var(--text);
+      text-align: left;
+    }
+
+    .folder.active, .folder:hover {
+      background: var(--soft);
+      color: var(--accent);
+    }
+
+    .folder .count {
+      margin-left: auto;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    main { min-width: 0; padding: 30px 5%; }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      margin-bottom: 36px;
+    }
+
+    .welcome { color: var(--muted); font-size: 14px; }
+    h1 { font-size: clamp(25px, 4vw, 34px); margin: 7px 0; }
+    .subtitle { color: var(--muted); font-size: 14px; }
+
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .btn {
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      background: var(--panel);
+      color: var(--text);
+      padding: 11px 15px;
+      font-weight: 600;
+    }
+
+    .btn.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    .search-wrap { margin-bottom: 28px; }
+
+    .search {
+      width: 100%;
+      padding: 16px 18px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--panel);
+      color: var(--text);
+      outline: none;
+    }
+
+    .search:focus, .field:focus {
+      border-color: var(--accent);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 15px;
+      margin-bottom: 32px;
+    }
+
+    .stat {
+      background: var(--panel);
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+    }
+
+    .stat-label { color: var(--muted); font-size: 13px; }
+    .stat-number { font-size: 27px; font-weight: 750; margin-top: 9px; }
+
+    .list-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 0 0 17px;
+      gap: 12px;
+    }
+
+    h2 { font-size: 19px; margin: 0; }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 17px;
+      padding: 20px;
+      min-width: 0;
+      transition: transform .2s, box-shadow .2s;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px #0000000b;
+    }
+
+    .card-top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .site-icon {
+      display: grid;
+      place-items: center;
+      width: 43px;
+      height: 43px;
+      flex-shrink: 0;
+      border-radius: 12px;
+      background: var(--soft);
+      font-size: 22px;
+    }
+
+    .site-name {
+      color: var(--muted);
+      font-size: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    .card h3 { margin: 0 0 9px; font-size: 17px; }
+    .description {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+      margin: 0 0 18px;
+    }
+
+    .authors {
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+      line-height: 1.8;
+      color: var(--muted);
+    }
+
+    .author-name { color: var(--text); font-weight: 600; }
+
+    .card-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .open-link {
+      color: var(--accent);
+      font-weight: 650;
+      font-size: 13px;
+      text-decoration: none;
+    }
+
+    .delete-link {
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .empty {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 50px 20px;
+      color: var(--muted);
+      background: var(--panel);
+      border: 1px dashed var(--border);
+      border-radius: 16px;
+    }
+
+    dialog {
+      width: min(440px, calc(100% - 30px));
+      padding: 25px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: var(--panel);
+      color: var(--text);
+    }
+
+    dialog::backdrop { background: #10111c99; }
+    dialog h2 { margin-bottom: 20px; }
+
+    .field {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 13px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--bg);
+      color: var(--text);
+      outline: none;
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .notice {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+      margin-top: 15px;
+    }
+
+    @media (max-width: 850px) {
+      .app { grid-template-columns: 1fr; }
+      aside { border-right: 0; border-bottom: 1px solid var(--border); }
+      .logo { margin-bottom: 18px; }
+      .section-label { margin-top: 12px; }
+      .folder-list { display: flex; flex-wrap: wrap; gap: 4px; }
+      .folder { width: auto; }
+      main { padding: 24px 18px; }
+    }
+
+    @media (max-width: 600px) {
+      header { align-items: flex-start; flex-direction: column; }
+      .stats { grid-template-columns: 1fr; }
+      .cards { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="logo">Link<span>Vault</span> ✦</div>
+
+    <div class="section-label">Библиотека</div>
+    <div class="folder-list" id="folderList"></div>
+
+    <button class="btn" id="addFolderBtn" style="width:100%;margin-top:12px">
+      + Новая папка
+    </button>
+
+    <div class="section-label">Аккаунт</div>
+    <button class="folder" id="themeBtn">🌙 Сменить тему</button>
+  </aside>
+
+  <main>
+    <header>
+      <div>
+        <div class="welcome">Твоя общая библиотека</div>
+        <h1 id="pageTitle">Все статьи</h1>
+        <div class="subtitle">Полезные материалы в одном месте.</div>
+      </div>
+      <div class="actions">
+        <button class="btn primary" id="addLinkBtn">＋ Добавить ссылку</button>
+      </div>
+    </header>
+
+    <div class="search-wrap">
+      <input class="search" id="search"
+        placeholder="⌕  Поиск по названию, описанию и авторам..."
+        aria-label="Поиск по статьям">
+    </div>
+
+    <section class="stats">
+      <div class="stat">
+        <div class="stat-label">Всего статей</div>
+        <div class="stat-number" id="totalLinks">0</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Папок</div>
+        <div class="stat-number" id="totalFolders">0</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Участников</div>
+        <div class="stat-number">5</div>
+      </div>
+    </section>
+
+    <div class="list-heading">
+      <h2>Сохранённые материалы</h2>
+      <span class="subtitle" id="resultCount"></span>
+    </div>
+    <section class="cards" id="cards"></section>
+  </main>
+</div>
+
+<dialog id="linkDialog">
+  <form id="linkForm">
+    <h2>Добавить статью</h2>
+    <input class="field" id="linkUrl" type="url"
+      placeholder="https://example.com/article" required>
+    <input class="field" id="linkTitle"
+      placeholder="Название статьи" required>
+    <input class="field" id="linkDescription"
+      placeholder="Краткое описание (необязательно)">
+    <select class="field" id="linkFolder" required></select>
+    <select class="field" id="linkAuthor" required>
+      <option value="Егоров">Егоров</option>
+      <option value="Глазнев">Глазнев</option>
+      <option value="Раткин">Раткин</option>
+      <option value="Пользователь 4">Пользователь 4</option>
+      <option value="Администратор">Администратор</option>
+    </select>
+    <div class="form-actions">
+      <button class="btn" type="button" id="cancelLink">Отмена</button>
+      <button class="btn primary" type="submit">Сохранить</button>
+    </div>
+    <p class="notice">
+      Деморежим: выбор автора не подтверждает личность пользователя.
+    </p>
+  </form>
+</dialog>
+
+<dialog id="folderDialog">
+  <form id="folderForm">
+    <h2>Новая папка</h2>
+    <input class="field" id="folderName"
+      placeholder="Например, Программирование" required maxlength="60">
+    <div class="form-actions">
+      <button class="btn" type="button" id="cancelFolder">Отмена</button>
+      <button class="btn primary" type="submit">Создать</button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+
+  const initialFolders = [
+    { id: "all", name: "Все статьи", icon: "✨" },
+    { id: "programming", name: "Программирование", icon: "💻" },
+    { id: "design", name: "Дизайн", icon: "🎨" },
+    { id: "learning", name: "Обучение", icon: "📚" }
+  ];
+
+  const initialLinks = [
+    {
+      id: 1,
+      url: "https://developer.mozilla.org/",
+      title: "MDN Web Docs",
+      description: "Документация и руководства по HTML, CSS и JavaScript.",
+      folder: "programming",
+      authors: ["Егоров"],
+      date: "2026-10-28"
+    },
+    {
+      id: 2,
+      url: "https://github.com/",
+      title: "GitHub",
+      description: "Платформа для хранения кода и совместной разработки.",
+      folder: "programming",
+      authors: ["Глазнев", "Егоров"],
+      date: "2026-10-28"
+    },
+    {
+      id: 3,
+      url: "https://www.figma.com/",
+      title: "Figma",
+      description: "Инструменты для создания макетов и прототипов.",
+      folder: "design",
+      authors: ["Раткин"],
+      date: "2026-10-27"
+    }
+  ];
+
+  let folders = load("lv_folders", initialFolders);
+  let links = load("lv_links", initialLinks);
+  let activeFolder = "all";
+
+  function load(key, fallback) {
+    try {
+      const saved = localStorage.getItem(key);
+      return saved ? JSON.parse(saved) : fallback;
+    } catch {
+      return fallback;
+    }
+  }
+
+  function persist() {
+    try {
+      localStorage.setItem("lv_folders", JSON.stringify(folders));
+      localStorage.setItem("lv_links", JSON.stringify(links));
+    } catch {
+      alert("Не удалось сохранить данные в браузере.");
+    }
+  }
+
+  function safeUrl(raw) {
+    try {
+      const url = new URL(raw);
+      return ["http:", "https:"].includes(url.protocol) ? url.href : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function hostname(raw) {
+    try { return new URL(raw).hostname; }
+    catch { return "Сайт"; }
+  }
+
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, char => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;",
+      '"': "&quot;", "'": "&#39;"
+    })[char]);
+  }
+
+  function renderFolders() {
+    $("folderList").innerHTML = folders.map(folder => {
+      const count = folder.id === "all"
+        ? links.length
+        : links.filter(link => link.folder === folder.id).length;
+
+      return `
+        <button class="folder ${activeFolder === folder.id ? "active" : ""}"
+          data-folder="${escapeHtml(folder.id)}">
+          <span>${escapeHtml(folder.icon || "📁")}</span>
+          <span>${escapeHtml(folder.name)}</span>
+          <span class="count">${count}</span>
+        </button>`;
+    }).join("");
+
+    document.querySelectorAll("[data-folder]").forEach(button => {
+      button.addEventListener("click", () => {
+        activeFolder = button.dataset.folder;
+        render();
+      });
+    });
+  }
+
+  function renderCards() {
+    const query = $("search").value.trim().toLowerCase();
+
+    const visible = links.filter(link => {
+      const matchesFolder =
+        activeFolder === "all" || link.folder === activeFolder;
+
+      const text = [
+        link.title, link.description, link.url,
+        ...link.authors
+      ].join(" ").toLowerCase();
+
+      return matchesFolder && text.includes(query);
+    });
+
+    $("resultCount").textContent = `${visible.length} материалов`;
+    $("totalLinks").textContent = links.length;
+    $("totalFolders").textContent =
+      folders.filter(folder => folder.id !== "all").length;
+
+    if (!visible.length) {
+      $("cards").innerHTML = `
+        <div class="empty">
+          <div style="font-size:34px;margin-bottom:12px">🔎</div>
+          <strong>Ничего не найдено</strong>
+          <p>Добавь статью или измени поисковый запрос.</p>
+        </div>`;
+      return;
+    }
+
+    $("cards").innerHTML = visible.map(link => {
+      const folder = folders.find(f => f.id === link.folder);
+      const safe = safeUrl(link.url);
+      const authors = [...new Set(link.authors)];
+
+      return `
+        <article class="card">
+          <div class="card-top">
+            <div class="site-icon">🔖</div>
+            <div>
+              <div class="site-name">${escapeHtml(hostname(link.url))}</div>
+              <div class="site-name">${escapeHtml(folder?.name || "Без папки")}</div>
+            </div>
+          </div>
+          <h3>${escapeHtml(link.title)}</h3>
+          <p class="description">${escapeHtml(link.description || "Описание не добавлено.")}</p>
+          <div class="authors">
+            👥 Сохранили:
+            ${authors.map(name =>
+              `<span class="author-name">${escapeHtml(name)}</span>`
+            ).join(", ")}
+            <br>📅 ${escapeHtml(link.date || "Дата неизвестна")}
+          </div>
+          <div class="card-bottom">
+            ${safe
+              ? `<a class="open-link" href="${escapeHtml(safe)}"
+                   target="_blank" rel="noopener noreferrer">Открыть статью ↗</a>`
+              : `<span class="site-name">Некорректный URL</span>`}
+            <button class="delete-link" data-delete="${link.id}">Удалить</button>
+          </div>
+        </article>`;
+    }).join("");
+
+    document.querySelectorAll("[data-delete]").forEach(button => {
+      button.addEventListener("click", () => {
+        const id = Number(button.dataset.delete);
+        if (!confirm("Удалить эту карточку в этом браузере?")) return;
+        links = links.filter(link => link.id !== id);
+        persist();
+        render();
+      });
+    });
+  }
+
+  function renderFolderOptions() {
+    $("linkFolder").innerHTML = folders
+      .filter(folder => folder.id !== "all")
+      .map(folder =>
+        `<option value="${escapeHtml(folder.id)}">${escapeHtml(folder.name)}</option>`
+      ).join("");
+  }
+
+  function render() {
+    const folder = folders.find(f => f.id === activeFolder);
+    $("pageTitle").textContent = folder?.name || "Все статьи";
+    renderFolders();
+    renderCards();
+    renderFolderOptions();
+  }
+
+  $("addLinkBtn").addEventListener("click", () => {
+    if (!folders.some(f => f.id !== "all")) {
+      alert("Сначала создай папку.");
+      return;
+    }
+    $("linkDialog").showModal();
+  });
+
+  $("cancelLink").addEventListener("click", () => $("linkDialog").close());
+
+  $("linkForm").addEventListener("submit", event => {
+    event.preventDefault();
+
+    const url = safeUrl($("linkUrl").value.trim());
+    if (!url) {
+      alert("Введи корректную ссылку, начинающуюся с https:// или http://");
+      return;
+    }
+
+    const folder = $("linkFolder").value;
+    const author = $("linkAuthor").value;
+    const existing = links.find(link => safeUrl(link.url) === url);
+
+    if (existing) {
+      if (!existing.authors.includes(author)) {
+        existing.authors.push(author);
+      }
+      existing.folder = folder;
+      if ($("linkTitle").value.trim()) {
+        existing.title = $("linkTitle").value.trim();
+      }
+      if ($("linkDescription").value.trim()) {
+        existing.description = $("linkDescription").value.trim();
+      }
+    } else {
+      links.unshift({
+        id: Date.now(),
+        url,
+        title: $("linkTitle").value.trim(),
+        description: $("linkDescription").value.trim(),
+        folder,
+        authors: [author],
+        date: new Date().toISOString().slice(0, 10)
+      });
+    }
+
+    activeFolder = folder;
+    persist();
+    $("linkForm").reset();
+    $("linkDialog").close();
+    render();
+  });
+
+  $("addFolderBtn").addEventListener("click", () => {
+    $("folderDialog").showModal();
+    $("folderName").focus();
+  });
+
+  $("cancelFolder").addEventListener("click", () => $("folderDialog").close());
+
+  $("folderForm").addEventListener("submit", event => {
+    event.preventDefault();
+    const name = $("folderName").value.trim();
+
+    if (!name) return;
+    if (folders.some(folder =>
+      folder.id !== "all" && folder.name.toLowerCase() === name.toLowerCase()
+    )) {
+      alert("Папка с таким названием уже существует.");
+      return;
+    }
+
+    const id = "folder-" + Date.now();
+    folders.push({ id, name, icon: "📁" });
+    activeFolder = id;
+    persist();
+    $("folderForm").reset();
+    $("folderDialog").close();
+    render();
+  });
+
+  $("search").addEventListener("input", renderCards);
+
+  $("themeBtn").addEventListener("click", () => {
+    document.body.classList.toggle("dark");
+    localStorage.setItem(
+      "lv_theme",
+      document.body.classList.contains("dark") ? "dark" : "light"
+    );
+  });
+
+  if (localStorage.getItem("lv_theme") === "dark") {
+    document.body.classList.add("dark");
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>
