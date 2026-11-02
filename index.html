@@ -77,6 +77,13 @@
       grid-template-columns: 250px minmax(0, 1fr);
       min-height: 100vh;
     }
+    .app {
+      display: none;
+    }
+
+    .app.authenticated {
+      display: grid;
+    }
 
     aside {
       background: var(--panel);
@@ -496,6 +503,65 @@
   });
 
   const $ = id => document.getElementById(id);
+  const loginScreen = $("loginScreen");
+  const app = document.querySelector(".app");
+
+  async function showApp(session) {
+    if (!session) {
+      loginScreen.style.display = "flex";
+      app.classList.remove("authenticated");
+      return;
+    }
+
+    const { data: profile, error } = await supabase
+      .from("profiles")
+      .select("username, is_admin")
+      .eq("id", session.user.id)
+      .single();
+
+    if (error || !profile) {
+      $("loginError").textContent =
+        "Профиль пользователя не найден. Обратись к администратору.";
+
+      await supabase.auth.signOut();
+      return;
+    }
+
+    loginScreen.style.display = "none";
+    app.classList.add("authenticated");
+
+    console.log("Пользователь вошёл:", profile.username);
+  }
+
+  $("loginForm").addEventListener("submit", async event => {
+    event.preventDefault();
+
+    const email = $("loginEmail").value.trim();
+    const password = $("loginPassword").value;
+
+    $("loginError").textContent = "Выполняется вход...";
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) {
+      $("loginError").textContent = "Ошибка входа: проверь почту и пароль.";
+      return;
+    }
+
+    await showApp(data.session);
+});
+
+supabase.auth.getSession().then(({ data, error }) => {
+  if (error) {
+    $("loginError").textContent = "Не удалось проверить авторизацию.";
+    return;
+  }
+
+  showApp(data.session);
+});
 
   const initialFolders = [
     { id: "all", name: "Все статьи", icon: "✨" },
