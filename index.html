@@ -27,6 +27,38 @@
     }
 
     * { box-sizing: border-box; }
+    .login-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .login-box {
+      width: 100%;
+      max-width: 400px;
+      padding: 35px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      text-align: center;
+    }
+
+    .login-box h1 {
+      font-size: 25px;
+      margin: 25px 0 10px;
+    }
+
+    .login-box p {
+      color: var(--muted);
+      margin-bottom: 25px;
+    }
+
+    .login-box .field {
+      display: block;
+    }
+    
 
     body {
       margin: 0;
@@ -318,6 +350,37 @@
   </style>
 </head>
 <body>
+  <div id="loginScreen" class="login-screen">
+  <div class="login-box">
+    <div class="logo">Link<span>Vault</span> ✦</div>
+    <h1>Добро пожаловать!</h1>
+    <p>Войди в свою библиотеку ссылок</p>
+
+    <form id="loginForm">
+      <input
+        class="field"
+        id="loginEmail"
+        type="email"
+        placeholder="Электронная почта"
+        required
+      >
+
+      <input
+        class="field"
+        id="loginPassword"
+        type="password"
+        placeholder="Пароль"
+        required
+      >
+
+      <button class="btn primary" type="submit" style="width:100%">
+        Войти
+      </button>
+
+      <p id="loginError" class="notice"></p>
+    </form>
+  </div>
+</div>
 <div class="app">
   <aside>
     <div class="logo">Link<span>Vault</span> ✦</div>
