@@ -416,13 +416,21 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (() => {
-  const SUPABASE_URL = "https://axltnphwttkmsbzztezq.supabase.co/rest/v1/";
+  const SUPABASE_URL = "https://axltnphwttkmsbzztezq.supabase.co";
   const SUPABASE_KEY = "sb_publishable_-Q6cbXQzwNxPrRJfNmm3jA_4fIYXdDJ";
 
   const supabase = window.supabase.createClient(
     SUPABASE_URL,
     SUPABASE_KEY
   );
+
+  supabase.auth.getSession().then(({ data, error }) => {
+    if (error) {
+      console.error("Ошибка подключения:", error.message);
+    } else {
+      console.log("Supabase подключён успешно!");
+    }
+  });
 
   const $ = id => document.getElementById(id);
 
