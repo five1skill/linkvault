@@ -416,6 +416,14 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (() => {
+  const SUPABASE_URL = "https://axltnphwttkmsbzztezq.supabase.co/rest/v1/";
+  const SUPABASE_KEY = "sb_publishable_-Q6cbXQzwNxPrRJfNmm3jA_4fIYXdDJ";
+
+  const supabase = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
   const $ = id => document.getElementById(id);
 
   const initialFolders = [
