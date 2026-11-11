@@ -536,6 +536,8 @@
     loginScreen.style.display = "none";
     app.classList.add("authenticated");
 
+    $("currentUserName").textContent = "👤 " + profile.username;
+
     console.log("Пользователь вошёл:", profile.username);
   }
 
